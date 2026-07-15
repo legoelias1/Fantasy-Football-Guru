@@ -1,18 +1,41 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { AdpFormat, SeasonStat } from "./types";
+import type { AdpFormat, Player, SeasonStat } from "./types";
 
 type DB = SupabaseClient;
 
 export async function searchPlayers(supabase: DB, query: string, position?: string) {
   let q = supabase
     .from("players")
-    .select("player_id, full_name, position, first_season, last_season")
+    .select("player_id, full_name, position, first_season, last_season, headshot_url")
     .ilike("full_name", `%${query}%`)
     .limit(10);
   if (position) q = q.eq("position", position);
   const { data, error } = await q;
   if (error) throw new Error(error.message);
   return data;
+}
+
+// Finds players named verbatim in free-text (e.g. the user's question) so the UI
+// can show a headshot for whoever is actually being discussed. Pages through the
+// full players table since Supabase caps a single select at ~1000 rows.
+export async function findMentionedPlayers(supabase: DB, text: string) {
+  const haystack = text.toLowerCase();
+  const PAGE_SIZE = 1000;
+  const matches: Pick<Player, "player_id" | "full_name" | "position" | "headshot_url">[] = [];
+
+  for (let from = 0; ; from += PAGE_SIZE) {
+    const { data, error } = await supabase
+      .from("players")
+      .select("player_id, full_name, position, headshot_url")
+      .range(from, from + PAGE_SIZE - 1);
+    if (error) throw new Error(error.message);
+    for (const p of data ?? []) {
+      if (p.full_name && haystack.includes(p.full_name.toLowerCase())) matches.push(p);
+    }
+    if (!data || data.length < PAGE_SIZE) break;
+  }
+
+  return matches;
 }
 
 export async function getPlayerCareerStats(supabase: DB, playerId: string) {

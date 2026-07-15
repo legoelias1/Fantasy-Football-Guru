@@ -2,6 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { buildSystemPrompt } from "@/lib/strategy-prompt";
+import { findMentionedPlayers } from "@/lib/retrieval";
 import { TOOLS, callTool } from "@/lib/tools";
 import type { UserLeague } from "@/lib/types";
 
@@ -38,6 +39,7 @@ export async function POST(request: Request) {
 
   const messages: Anthropic.MessageParam[] = [{ role: "user", content: question }];
   const system = buildSystemPrompt(league);
+  const mentionedPlayers = await findMentionedPlayers(supabase, question);
 
   for (let i = 0; i < MAX_TOOL_ITERATIONS; i++) {
     const response = await anthropic.messages.create({
@@ -54,7 +56,15 @@ export async function POST(request: Request) {
         .filter((block): block is Anthropic.TextBlock => block.type === "text")
         .map((block) => block.text)
         .join("\n");
-      return NextResponse.json({ answer: text });
+      return NextResponse.json({
+        answer: text,
+        players: mentionedPlayers.map((p) => ({
+          id: p.player_id,
+          name: p.full_name,
+          position: p.position,
+          headshotUrl: p.headshot_url,
+        })),
+      });
     }
 
     messages.push({ role: "assistant", content: response.content });

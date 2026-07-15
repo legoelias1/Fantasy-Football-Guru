@@ -2,10 +2,22 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import ReactMarkdown from "react-markdown";
 import type { UserLeague } from "@/lib/types";
 
-type ChatEntry = { role: "user" | "assistant"; text: string };
+type MentionedPlayer = {
+  id: string;
+  name: string;
+  position: string;
+  headshotUrl: string | null;
+};
+
+type ChatEntry = {
+  role: "user" | "assistant";
+  text: string;
+  players?: MentionedPlayer[];
+};
 
 export default function AssistantChat({ leagues }: { leagues: UserLeague[] }) {
   const [leagueId, setLeagueId] = useState(leagues[0]?.id ?? "");
@@ -30,7 +42,7 @@ export default function AssistantChat({ leagues }: { leagues: UserLeague[] }) {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "request failed");
-      setHistory((h) => [...h, { role: "assistant", text: data.answer }]);
+      setHistory((h) => [...h, { role: "assistant", text: data.answer, players: data.players }]);
     } catch (err) {
       setError(err instanceof Error ? err.message : "something went wrong");
     } finally {
@@ -80,8 +92,30 @@ export default function AssistantChat({ leagues }: { leagues: UserLeague[] }) {
               {entry.role === "user" ? "You" : "Assistant"}
             </span>
             {entry.role === "assistant" ? (
-              <div className="prose prose-sm dark:prose-invert max-w-none">
-                <ReactMarkdown>{entry.text}</ReactMarkdown>
+              <div className="flex gap-4">
+                {!!entry.players?.some((p) => p.headshotUrl) && (
+                  <div className="flex flex-shrink-0 flex-col gap-2">
+                    {entry.players
+                      .filter((p) => p.headshotUrl)
+                      .map((p) => (
+                        <div key={p.id} className="text-center">
+                          <Image
+                            src={p.headshotUrl!}
+                            alt={p.name}
+                            width={140}
+                            height={140}
+                            className="rounded-lg bg-black/5 object-cover dark:bg-white/10"
+                          />
+                          <p className="mt-1 text-xs text-black/60 dark:text-white/60">
+                            {p.name}
+                          </p>
+                        </div>
+                      ))}
+                  </div>
+                )}
+                <div className="prose prose-sm dark:prose-invert max-w-none flex-1">
+                  <ReactMarkdown>{entry.text}</ReactMarkdown>
+                </div>
               </div>
             ) : (
               <p className="whitespace-pre-wrap">{entry.text}</p>

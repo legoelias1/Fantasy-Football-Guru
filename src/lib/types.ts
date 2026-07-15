@@ -19,6 +19,7 @@ export type Player = {
   position: string;
   first_season: number;
   last_season: number;
+  headshot_url: string | null;
 };
 
 export type SeasonStat = {

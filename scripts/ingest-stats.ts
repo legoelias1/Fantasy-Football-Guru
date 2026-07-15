@@ -17,6 +17,7 @@ type PlayerRow = {
   position: string;
   first_season: number;
   last_season: number;
+  headshot_url: string | null;
 };
 
 type SeasonStatRow = {
@@ -80,6 +81,8 @@ async function main() {
       if (existing) {
         existing.first_season = Math.min(existing.first_season, year);
         existing.last_season = Math.max(existing.last_season, year);
+        // Years are processed in ascending order, so the last non-empty value is the most recent photo.
+        if (r.headshot_url) existing.headshot_url = r.headshot_url;
       } else {
         players.set(r.player_id, {
           player_id: r.player_id,
@@ -87,6 +90,7 @@ async function main() {
           position: r.position,
           first_season: year,
           last_season: year,
+          headshot_url: r.headshot_url || null,
         });
       }
 
