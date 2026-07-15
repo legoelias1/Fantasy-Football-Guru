@@ -62,6 +62,7 @@ export async function POST(request: Request) {
           name: p.full_name,
           position: p.position,
           headshotUrl: p.headshot_url,
+          firstSeason: p.first_season,
           latestSeason: await getPlayerLatestSeasonSummary(
             supabase,
             p.player_id,

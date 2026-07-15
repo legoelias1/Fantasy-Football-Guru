@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import type { UserLeague } from "@/lib/types";
 
 type MentionedPlayer = {
@@ -11,6 +12,7 @@ type MentionedPlayer = {
   name: string;
   position: string;
   headshotUrl: string | null;
+  firstSeason: number;
   latestSeason: { season: number; points: number | null; positionRank: number | null } | null;
 };
 
@@ -22,7 +24,23 @@ type ChatEntry = {
 
 const upcomingSeason = new Date().getFullYear();
 
+function ordinal(n: number): string {
+  const v = n % 100;
+  if (v >= 11 && v <= 13) return `${n}th`;
+  switch (n % 10) {
+    case 1:
+      return `${n}st`;
+    case 2:
+      return `${n}nd`;
+    case 3:
+      return `${n}rd`;
+    default:
+      return `${n}th`;
+  }
+}
+
 function PlayerCard({ player }: { player: MentionedPlayer }) {
+  const seasonNumber = upcomingSeason - player.firstSeason + 1;
   return (
     <div className="w-56 flex-shrink-0 rounded border border-black/10 p-3 text-center dark:border-white/10">
       {player.headshotUrl && (
@@ -36,7 +54,9 @@ function PlayerCard({ player }: { player: MentionedPlayer }) {
       )}
       <p className="mt-2 font-semibold">{player.name}</p>
       <p className="text-xs text-black/50 dark:text-white/50">{player.position}</p>
-      <p className="mt-2 text-sm font-medium">{upcomingSeason} Season</p>
+      <p className="mt-2 text-sm font-medium">
+        {seasonNumber > 0 ? `${ordinal(seasonNumber)} Season` : "Incoming Rookie"}
+      </p>
       {player.latestSeason && player.latestSeason.points != null ? (
         <p className="text-sm text-black/70 dark:text-white/70">
           {player.latestSeason.season}: {player.latestSeason.points.toFixed(1)} pts
@@ -136,7 +156,7 @@ export default function AssistantChat({ leagues }: { leagues: UserLeague[] }) {
                 </span>
                 {entry.role === "assistant" ? (
                   <div className="prose prose-sm dark:prose-invert max-w-none">
-                    <ReactMarkdown>{entry.text}</ReactMarkdown>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{entry.text}</ReactMarkdown>
                   </div>
                 ) : (
                   <p className="whitespace-pre-wrap">{entry.text}</p>

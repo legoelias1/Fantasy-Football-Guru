@@ -36,12 +36,15 @@ export async function searchPlayers(supabase: DB, query: string, position?: stri
 export async function findMentionedPlayers(supabase: DB, text: string) {
   const haystack = text.toLowerCase();
   const PAGE_SIZE = 1000;
-  const matches: Pick<Player, "player_id" | "full_name" | "position" | "headshot_url">[] = [];
+  const matches: Pick<
+    Player,
+    "player_id" | "full_name" | "position" | "headshot_url" | "first_season"
+  >[] = [];
 
   for (let from = 0; ; from += PAGE_SIZE) {
     const { data, error } = await supabase
       .from("players")
-      .select("player_id, full_name, position, headshot_url")
+      .select("player_id, full_name, position, headshot_url, first_season")
       .range(from, from + PAGE_SIZE - 1);
     if (error) throw new Error(error.message);
     for (const p of data ?? []) {
