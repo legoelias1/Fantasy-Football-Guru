@@ -2,7 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { buildSystemPrompt } from "@/lib/strategy-prompt";
-import { findMentionedPlayers } from "@/lib/retrieval";
+import { findMentionedPlayers, getPlayerLatestSeasonSummary } from "@/lib/retrieval";
 import { TOOLS, callTool } from "@/lib/tools";
 import type { UserLeague } from "@/lib/types";
 
@@ -56,15 +56,21 @@ export async function POST(request: Request) {
         .filter((block): block is Anthropic.TextBlock => block.type === "text")
         .map((block) => block.text)
         .join("\n");
-      return NextResponse.json({
-        answer: text,
-        players: mentionedPlayers.map((p) => ({
+      const players = await Promise.all(
+        mentionedPlayers.map(async (p) => ({
           id: p.player_id,
           name: p.full_name,
           position: p.position,
           headshotUrl: p.headshot_url,
-        })),
-      });
+          latestSeason: await getPlayerLatestSeasonSummary(
+            supabase,
+            p.player_id,
+            p.position,
+            league?.scoring ?? "ppr"
+          ),
+        }))
+      );
+      return NextResponse.json({ answer: text, players });
     }
 
     messages.push({ role: "assistant", content: response.content });

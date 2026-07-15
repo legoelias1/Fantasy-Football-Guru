@@ -1,7 +1,22 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { AdpFormat, Player, SeasonStat } from "./types";
+import type { AdpFormat, Player, Scoring, SeasonStat } from "./types";
 
 type DB = SupabaseClient;
+
+function pointsForScoring(
+  row: { fantasy_points: number | null; fantasy_points_ppr: number | null },
+  scoring: Scoring
+): number | null {
+  if (row.fantasy_points == null && row.fantasy_points_ppr == null) return null;
+  if (scoring === "standard") return row.fantasy_points;
+  if (scoring === "ppr") return row.fantasy_points_ppr;
+  // Half-PPR sits exactly halfway between standard and full-PPR, since the only
+  // difference between the two is the per-reception bonus.
+  if (row.fantasy_points != null && row.fantasy_points_ppr != null) {
+    return (row.fantasy_points + row.fantasy_points_ppr) / 2;
+  }
+  return row.fantasy_points_ppr ?? row.fantasy_points;
+}
 
 export async function searchPlayers(supabase: DB, query: string, position?: string) {
   let q = supabase
@@ -36,6 +51,46 @@ export async function findMentionedPlayers(supabase: DB, text: string) {
   }
 
   return matches;
+}
+
+// The player's most recently played season: their points in the league's scoring
+// format, and where that ranked among every player at their position that season.
+export async function getPlayerLatestSeasonSummary(
+  supabase: DB,
+  playerId: string,
+  position: string,
+  scoring: Scoring
+) {
+  const { data: seasons, error } = await supabase
+    .from("season_stats")
+    .select("season, fantasy_points, fantasy_points_ppr")
+    .eq("player_id", playerId)
+    .order("season", { ascending: false })
+    .limit(1);
+  if (error) throw new Error(error.message);
+  const latest = seasons?.[0];
+  if (!latest) return null;
+
+  const points = pointsForScoring(latest, scoring);
+
+  const { data: positionRows, error: posErr } = await supabase
+    .from("season_stats")
+    .select("player_id, fantasy_points, fantasy_points_ppr")
+    .eq("season", latest.season)
+    .eq("position", position);
+  if (posErr) throw new Error(posErr.message);
+
+  const ranked = (positionRows ?? [])
+    .map((r) => ({ player_id: r.player_id as string, points: pointsForScoring(r, scoring) }))
+    .filter((r): r is { player_id: string; points: number } => r.points != null)
+    .sort((a, b) => b.points - a.points);
+  const rankIndex = ranked.findIndex((r) => r.player_id === playerId);
+
+  return {
+    season: latest.season as number,
+    points,
+    positionRank: rankIndex === -1 ? null : rankIndex + 1,
+  };
 }
 
 export async function getPlayerCareerStats(supabase: DB, playerId: string) {
