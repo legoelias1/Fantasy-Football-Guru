@@ -22,8 +22,8 @@ export default async function Nav() {
             <Link href="/assistant" className="text-sm">
               Draft Assistant
             </Link>
-            <Link href="/explorer" className="text-sm">
-              Historical Explorer
+            <Link href="/news" className="text-sm">
+              Breaking News
             </Link>
           </>
         )}
