@@ -20,18 +20,24 @@ export default async function Home() {
       <div className="flex gap-3">
         {user ? (
           <>
-            <Link href="/assistant" className="rounded bg-foreground px-5 py-3 text-background">
+            <Link
+              href="/assistant"
+              className="rounded bg-foreground px-5 py-3 text-background transition-opacity hover:opacity-90"
+            >
               Open Draft Assistant
             </Link>
             <Link
               href="/leagues"
-              className="rounded border border-black/20 px-5 py-3 dark:border-white/20"
+              className="rounded border border-black/20 px-5 py-3 transition-colors hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10"
             >
               Manage Leagues
             </Link>
           </>
         ) : (
-          <Link href="/login" className="rounded bg-foreground px-5 py-3 text-background">
+          <Link
+            href="/login"
+            className="rounded bg-foreground px-5 py-3 text-background transition-opacity hover:opacity-90"
+          >
             Sign in to get started
           </Link>
         )}

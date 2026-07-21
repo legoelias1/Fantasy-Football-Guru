@@ -109,7 +109,7 @@ export default function AssistantChat({ leagues }: { leagues: UserLeague[] }) {
     return (
       <p className="text-sm text-black/60 dark:text-white/60">
         You haven&apos;t set up a league yet.{" "}
-        <Link href="/leagues" className="underline">
+        <Link href="/leagues" className="underline transition-opacity hover:opacity-70">
           Add one
         </Link>{" "}
         to get advice tailored to your draft position and scoring format.
@@ -124,7 +124,7 @@ export default function AssistantChat({ leagues }: { leagues: UserLeague[] }) {
         <select
           value={leagueId}
           onChange={(e) => setLeagueId(e.target.value)}
-          className="mt-1 w-full rounded border border-black/20 px-3 py-2 dark:border-white/20"
+          className="mt-1 w-full rounded border border-black/20 px-3 py-2 transition-colors hover:border-black/40 dark:border-white/20 dark:hover:border-white/40"
         >
           {leagues.map((l) => (
             <option key={l.id} value={l.id}>
@@ -175,7 +175,7 @@ export default function AssistantChat({ leagues }: { leagues: UserLeague[] }) {
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               placeholder="Ask a draft question…"
-              className="flex-1 rounded border border-black/20 px-3 py-2 dark:border-white/20"
+              className="flex-1 rounded border border-black/20 px-3 py-2 transition-colors hover:border-black/40 dark:border-white/20 dark:hover:border-white/40"
             />
             <button
               type="submit"

@@ -20,22 +20,25 @@ export default async function LoginPage({
           type="email"
           placeholder="Email"
           required
-          className="rounded border border-black/20 px-3 py-2 dark:border-white/20"
+          className="rounded border border-black/20 px-3 py-2 transition-colors hover:border-black/40 dark:border-white/20 dark:hover:border-white/40"
         />
         <input
           name="password"
           type="password"
           placeholder="Password"
           required
-          className="rounded border border-black/20 px-3 py-2 dark:border-white/20"
+          className="rounded border border-black/20 px-3 py-2 transition-colors hover:border-black/40 dark:border-white/20 dark:hover:border-white/40"
         />
-        <button type="submit" className="rounded bg-foreground px-3 py-2 text-background">
+        <button
+          type="submit"
+          className="rounded bg-foreground px-3 py-2 text-background transition-opacity hover:opacity-90"
+        >
           Sign in
         </button>
         <button
           type="submit"
           formAction={signUpWithPassword}
-          className="rounded border border-black/20 px-3 py-2 dark:border-white/20"
+          className="rounded border border-black/20 px-3 py-2 transition-colors hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10"
         >
           Create account
         </button>
@@ -46,7 +49,7 @@ export default async function LoginPage({
       <form action={signInWithGoogle}>
         <button
           type="submit"
-          className="w-full rounded border border-black/20 px-3 py-2 dark:border-white/20"
+          className="w-full rounded border border-black/20 px-3 py-2 transition-colors hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10"
         >
           Continue with Google
         </button>

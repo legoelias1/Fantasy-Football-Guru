@@ -23,7 +23,7 @@ export default async function LeaguesPage() {
         {(leagues as UserLeague[] | null)?.map((league) => (
           <li
             key={league.id}
-            className="flex items-center justify-between rounded border border-black/10 px-4 py-3 dark:border-white/10"
+            className="flex items-center justify-between rounded border border-black/10 px-4 py-3 transition-colors hover:bg-black/5 dark:border-white/10 dark:hover:bg-white/5"
           >
             <div>
               <div className="font-medium">{league.name}</div>
@@ -34,7 +34,10 @@ export default async function LeaguesPage() {
             </div>
             <form action={deleteLeague}>
               <input type="hidden" name="id" value={league.id} />
-              <button type="submit" className="text-sm text-red-600 underline">
+              <button
+                type="submit"
+                className="text-sm text-red-600 underline transition-colors hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+              >
                 Delete
               </button>
             </form>
@@ -52,7 +55,7 @@ export default async function LeaguesPage() {
         <input
           name="name"
           placeholder="League name"
-          className="rounded border border-black/20 px-3 py-2 dark:border-white/20"
+          className="rounded border border-black/20 px-3 py-2 transition-colors hover:border-black/40 dark:border-white/20 dark:hover:border-white/40"
         />
 
         <div className="flex gap-3">
@@ -85,7 +88,7 @@ export default async function LeaguesPage() {
               min={2}
               max={20}
               required
-              className="mt-1 w-full rounded border border-black/20 px-3 py-2 dark:border-white/20"
+              className="mt-1 w-full rounded border border-black/20 px-3 py-2 transition-colors hover:border-black/40 dark:border-white/20 dark:hover:border-white/40"
             />
           </label>
           <label className="flex-1 text-sm">
@@ -97,7 +100,7 @@ export default async function LeaguesPage() {
               min={1}
               max={20}
               required
-              className="mt-1 w-full rounded border border-black/20 px-3 py-2 dark:border-white/20"
+              className="mt-1 w-full rounded border border-black/20 px-3 py-2 transition-colors hover:border-black/40 dark:border-white/20 dark:hover:border-white/40"
             />
           </label>
         </div>
@@ -120,14 +123,17 @@ export default async function LeaguesPage() {
                   type="number"
                   defaultValue={def as number}
                   min={0}
-                  className="mt-1 w-full rounded border border-black/20 px-2 py-1 dark:border-white/20"
+                  className="mt-1 w-full rounded border border-black/20 px-2 py-1 transition-colors hover:border-black/40 dark:border-white/20 dark:hover:border-white/40"
                 />
               </label>
             ))}
           </div>
         </fieldset>
 
-        <button type="submit" className="rounded bg-foreground px-3 py-2 text-background">
+        <button
+          type="submit"
+          className="rounded bg-foreground px-3 py-2 text-background transition-opacity hover:opacity-90"
+        >
           Save league
         </button>
       </form>
