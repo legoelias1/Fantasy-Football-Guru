@@ -25,22 +25,35 @@ export default async function NewsPage() {
       {error && <p className="text-sm text-red-600">{error}</p>}
 
       <div className="flex flex-col gap-4">
-        {news.map((item, i) => (
-          <article key={i} className="rounded border border-black/10 p-4 dark:border-white/10">
-            <h2 className="font-semibold">{item.headline}</h2>
-            <p className="mt-1 text-sm text-black/70 dark:text-white/70">{item.summary}</p>
-            {item.url && (
-              <a
-                href={item.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-2 inline-block text-xs text-black/50 underline dark:text-white/50"
-              >
-                {item.source || "Source"}
-              </a>
-            )}
-          </article>
-        ))}
+        {news.map((item, i) => {
+          const body = (
+            <>
+              <h2 className="font-semibold">{item.headline}</h2>
+              <p className="mt-1 text-sm text-black/70 dark:text-white/70">{item.summary}</p>
+              {item.source && (
+                <p className="mt-2 text-xs text-black/50 underline dark:text-white/50">
+                  {item.source}
+                </p>
+              )}
+            </>
+          );
+
+          return item.url ? (
+            <a
+              key={i}
+              href={item.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block rounded border border-black/10 p-4 transition-colors hover:bg-black/5 dark:border-white/10 dark:hover:bg-white/10"
+            >
+              {body}
+            </a>
+          ) : (
+            <article key={i} className="rounded border border-black/10 p-4 dark:border-white/10">
+              {body}
+            </article>
+          );
+        })}
         {!news.length && !error && (
           <p className="text-sm text-black/50 dark:text-white/50">No news found right now.</p>
         )}
