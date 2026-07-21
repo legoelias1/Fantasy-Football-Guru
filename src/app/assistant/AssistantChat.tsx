@@ -181,14 +181,15 @@ export default function AssistantChat({ leagues }: { leagues: UserLeague[] }) {
               type="submit"
               disabled={loading}
               aria-label="Ask"
-              className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl transition-transform hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
+              className="flex h-11 flex-shrink-0 items-center gap-1.5 overflow-visible rounded-xl bg-foreground py-2 pl-1.5 pr-4 text-background transition-transform hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
             >
               <span
-                className={`inline-block ${throwing ? "animate-throw-football" : ""}`}
+                className={`relative z-10 inline-block ${throwing ? "animate-throw-football" : ""}`}
                 onAnimationEnd={() => setThrowing(false)}
               >
-                <FootballIcon className="h-9 w-9" />
+                <FootballIcon className="h-8 w-8" />
               </span>
+              <span className="text-sm font-semibold">Ask</span>
             </button>
           </form>
         </div>
