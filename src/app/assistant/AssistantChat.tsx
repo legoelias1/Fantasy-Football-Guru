@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import FootballIcon from "@/components/FootballIcon";
 import type { UserLeague } from "@/lib/types";
 
 type MentionedPlayer = {
@@ -75,6 +76,7 @@ export default function AssistantChat({ leagues }: { leagues: UserLeague[] }) {
   const [history, setHistory] = useState<ChatEntry[]>([]);
   const [featuredPlayers, setFeaturedPlayers] = useState<MentionedPlayer[]>([]);
   const [loading, setLoading] = useState(false);
+  const [throwing, setThrowing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function ask(e: React.FormEvent) {
@@ -84,6 +86,7 @@ export default function AssistantChat({ leagues }: { leagues: UserLeague[] }) {
     setHistory((h) => [...h, { role: "user", text: q }]);
     setQuestion("");
     setLoading(true);
+    setThrowing(true);
     setError(null);
     try {
       const res = await fetch("/api/chat", {
@@ -177,9 +180,15 @@ export default function AssistantChat({ leagues }: { leagues: UserLeague[] }) {
             <button
               type="submit"
               disabled={loading}
-              className="rounded bg-foreground px-4 py-2 text-background disabled:opacity-50"
+              aria-label="Ask"
+              className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl transition-transform hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
             >
-              Ask
+              <span
+                className={`inline-block ${throwing ? "animate-throw-football" : ""}`}
+                onAnimationEnd={() => setThrowing(false)}
+              >
+                <FootballIcon className="h-9 w-9" />
+              </span>
             </button>
           </form>
         </div>
